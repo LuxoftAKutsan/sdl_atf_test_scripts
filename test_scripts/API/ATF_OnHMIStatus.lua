@@ -374,7 +374,7 @@ end
 -- Remove storage folder, restart SDL
 DeletingDatabase_RestartSDL("GeneralPreconditiion", true)
 
--- 29[P][MAN]_TC_HMILevel_FULL_activating_app_by_user_via_VR_synonym
+-- 29[P][MAN]_TC_HMILevel_FULL_activating_app_by_user_via_VR_synonym -APPLINK-16425
 --===================================================================================--
 -- HMI level to FULL by dint of activating app by user via VR synonym (from VR menu) and the receiving onHMIStatus notification in mobile application
 --===================================================================================--
@@ -382,6 +382,7 @@ DeletingDatabase_RestartSDL("GeneralPreconditiion", true)
 function Test:ActivationApp_viaVR()
 	userPrint(34, "=================================== Test  Case ===================================")
 
+	print()
 	local RAIParams = config.application1.registerAppInterfaceParams
 	RAIParams.vrSynonyms = {"ApplicationVrSynonym"}
 
@@ -391,15 +392,22 @@ function Test:ActivationApp_viaVR()
 
 	self.mobileSession:StartService(7)
 		:Do(function(_,data)
-
 			RegisterAppInterface_Success(self, self.mobileSession, RAIParams, {application = {appName = RAIParams.appName}, vrSynonyms = {"ApplicationVrSynonym"}})
 
-			EXPECT_NOTIFICATION("OnHMIStatus",
-				{hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN"},
-				{hmiLevel = "FULL", audioStreamingState = audioState, systemContext = "MAIN"})
-				:Do(function(exp,data)
-					if exp.occurences == 1 then
+-- if application is media
 
+		if MediaApp == true then 
+			EXPECT_NOTIFICATION("OnHMIStatus",
+				{hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN"},		
+				{hmiLevel = "FULL", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN"},
+				{hmiLevel = "FULL", audioStreamingState = audioState, systemContext = "MAIN"},
+				{hmiLevel = "FULL", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN"},
+				{hmiLevel = "FULL", audioStreamingState = "NOT_AUDIBLE", systemContext = "VRSESSION"}
+				)
+				:Do(function(exp,data)
+
+					if exp.occurences == 1 then
+					-- 	print("First OnHMI, audioState = " .. audioState)
 						-- Openning VR menu
 						self.hmiConnection:SendNotification("VR.Started",{})
 
@@ -416,11 +424,43 @@ function Test:ActivationApp_viaVR()
 						end
 
 						RUN_AFTER(to_run, 1000)
+					-- else
+					-- 	print("Second OnHMI, audioState = " .. audioState)
 					end
 				end)
 				:Times(2)
-	end)
+--if application is non-media 
+		else 
+			EXPECT_NOTIFICATION("OnHMIStatus",
+				{hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN"},
+				{hmiLevel = "FULL", audioStreamingState = audioState, systemContext = "MAIN"})
+				:Do(function(exp,data)
 
+					if exp.occurences == 1 then
+						--print("First OnHMI, audioState = " .. audioState)
+						-- Openning VR menu
+						self.hmiConnection:SendNotification("VR.Started",{})
+
+						SendOnSystemContext(self, "VRSESSION")
+
+						function to_run()
+							--activate app
+		  					ActivationApp(self, self.applications[RAIParams.appName])
+
+		  					--Closing VR menu
+		  					self.hmiConnection:SendNotification("VR.Stopped",{})
+
+							SendOnSystemContext(self, "MAIN")
+						end
+
+						RUN_AFTER(to_run, 1000)
+					--else
+						--print("Second OnHMI, audioState = " .. audioState)
+					end
+				end)
+				:Times(2)
+		end
+	end)
 	DelayedExp(1000)
 
 end
@@ -428,9 +468,10 @@ end
 function Test:Postcondition_UnregisteApp_ActivatedViaVR()
 	UnregisterApplication_Success(self, self.mobileSession, self.applications[config.application1.registerAppInterfaceParams.appName])
 end
+-- 29[P][MAN]_TC_HMILevel_FULL_activating_app_by_user_via_VR_synonym 
 
 --[==[ uncomment after resolving APPLINK-18854
--- 29[P][MAN]_TC_HMILevel_FULL_activating_app_by_user_via_VR_synonym
+-- 35[P][MAN]_TC_Change_HMIlevel_ when_SDL_receives_BC.OnPhoneCall APPLINK-15440 and APPLINK-15441
 --===================================================================================--
 -- SDL sets level from FULL/LIMITED to BACKGROUND when receives BC.OnEventChanged (isActive: true, eventName: PHONE_CALL) and the receiving onHMIStatus notification in mobile application
 -- SDL restores HMI level to FULL/LIMITED from BACKGROUND when SDL receives BC.OnEventChanged (isActive: false, eventName: PHONE_CALL) and the receiving onHMIStatus notification in mobile application
@@ -529,8 +570,9 @@ function Test:Postcondition_UnregisteApp_DeactivationAppDuringPhoneCall_ResporeL
 	UnregisterApplication_Success(self, self.mobileSession, self.applications[config.application1.registerAppInterfaceParams.appName])
 end
 
--- 35[P][MAN]_TC_Change_HMIlevel_ when_SDL_receives_BC.OnPhoneCall
--- 34[P][MAN]_TC_Change_HMIlevel_from_FULL/LIMITED_to_BACKGROUND
+-- 35[P][MAN]_TC_Change_HMIlevel_ when_SDL_receives_BC.OnPhoneCall 
+
+-- 34[P][MAN]_TC_Change_HMIlevel_from_FULL/LIMITED_to_BACKGROUND APPLINK-16338 
 --===================================================================================--
 -- Changing HMI level of navifation app FULL, AUDIBLE->LIMITED, NOT_AUDIBLE, of communication app LIMITED, AUDIBLE->BACKGROUND, NOT_AUDIBLE , media app BACKGROUND-> without changes and the receiving onHMIStatus notification in mobile application when SDL receives BC.OnEventChanged (isActive: true, eventName: PHONE_CALL) and BC.OnEventChanged (isActive: false, eventName: PHONE_CALL) 
 --===================================================================================--
@@ -706,6 +748,8 @@ function Test:Postcondition_UnregisterCommunicationApp_ChangingLevelDuringPhoneC
 end
 
 -- 34[P][MAN]_TC_Change_HMIlevel_from_FULL/LIMITED_to_BACKGROUND
+
+-- 30[P][MAN]_TC_Change_HMIlevel_from_FULL_to_LIMITED
 --===================================================================================--
 -- Changing HMI level of navifation app LIMITED, AUDIBLE->LIMITED, NOT_AUDIBLE, of media app FULL, AUDIBLE->BACKGROUND, NOT_AUDIBLE , non-media app BACKGROUND-> without changes and the receiving onHMIStatus notification in mobile application when SDL receives BC.OnEventChanged (isActive: true, eventName: PHONE_CALL) and BC.OnEventChanged (isActive: false, eventName: PHONE_CALL) 
 --===================================================================================--
@@ -868,7 +912,7 @@ function Test:Postcondition_UnregisterNonMediaApp_ChangingLevelDuringPhoneCall()
 end
 ]==]
 
--- 30[P][MAN]_TC_Change_HMIlevel_from_FULL_to_LIMITED
+-- 30[P][MAN]_TC_Change_HMIlevel_from_FULL_to_LIMITED - APPLINK-16425
 --===================================================================================--
 -- Changing HMI level from FULL to LIMITED (BACKGROUND for non-media app) when user switches to any non-media SDL app and the receiving onHMIStatus notification in mobile application.
 --===================================================================================--
@@ -979,7 +1023,7 @@ end
 
 UnregisterTwoApplication_Success(self, "ChangingHMILevel_ByAcvivationNonMedia")
 
---33[P][MAN]_TC_Change_HMIlevel_from_FULL_to_BACKGROUND
+--33[P][MAN]_TC_Change_HMIlevel_from_FULL_to_BACKGROUND - APPLINK-16354
 --===================================================================================--
 -- Changing HMI level from FULL to BACKGROUND when user activates other SDL media app and the receiving onHMIStatus notification in mobile application.
 --===================================================================================--
@@ -1226,8 +1270,8 @@ if MediaApp or NaviComApp then
 
 end
 
--- 32[P][MAN]_TC_Change_HMIlevel_from_LIMITED/BACKGROUND_to_FULL
--- 36[P][MAN]_TC_LIMITED_HMI_level_to_media_application
+-- 32[P][MAN]_TC_Change_HMIlevel_from_LIMITED/BACKGROUND_to_FULL - APPLINK-16392
+-- 36[P][MAN]_TC_LIMITED_HMI_level_to_media_application 
 --===================================================================================--
 -- Returning the app from HMI Level LIMITED (BACKGROUND for non-media app) to FULL when 
 -- selects an app in applicaton menu or via VR command and the receiving onHMIStatus notification in mobile application.
@@ -2037,7 +2081,7 @@ UnregisterTwoApplication_Success(self, "SDLsetsAppToBackgroundLevel_AfterPerform
 --===================================================================================--
 -- SDL sets app to NOT_AUDIBLE state in case VR session is active, to ATTENUATED state during speak is active when mixing audio is supported
 --===================================================================================--
-
+--APPLINK-16527 
 function Test:AudioStreaming_NOT_AUDIBLE_ATTENUATED_inFULL_MixingAudio_is_supported()
 	userPrint(34, "=================================== Test  Case ===================================")
 

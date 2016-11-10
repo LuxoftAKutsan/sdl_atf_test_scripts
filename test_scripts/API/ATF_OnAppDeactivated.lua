@@ -39,6 +39,10 @@ Debug = {} -- empty {}: script will do not print request on console screen.
 
 	--Delete app_info.dat, logs and policy table
 	commonSteps:DeleteLogsFileAndPolicyTable()
+		if ( commonSteps:file_exists(config.pathToSDL .. "policy.sqlite") == true ) then
+		print("policy.sqlite is found in bin folder")
+  	os.remove(config.pathToSDL .. "policy.sqlite")
+	end
 
 	--1. Activate application
 	commonSteps:ActivationApp()
@@ -70,10 +74,10 @@ Debug = {} -- empty {}: script will do not print request on console screen.
 		--Begin Test case CommonRequestCheck.1
 		--Description: This test is intended to check positive cases and when all parameters are in boundary conditions
 
-			--Requirement id in JAMA:
+			--Requirement id in Jira: APPLINK-17839
 
-			--Verification criteria:
-					-- All available reason
+			--Verification criteria: After SDL receives OnAppDeactivated for media (navi, voice-com) app in FULL, it sends OnHMIStatus (LIMITED, AUDIBLE)
+					-- All available reasons for OnAppDeactivated
 			local reasonValue = {"AUDIO", "PHONECALL", "NAVIGATIONMAP", "PHONEMENU", "SYNCSETTINGS", "GENERAL"}
 			for i=1,#reasonValue do
 				Test["OnAppDeactivated_Reason_" .. reasonValue[i]] = function(self)
@@ -88,7 +92,7 @@ Debug = {} -- empty {}: script will do not print request on console screen.
 						reasonValue[i] == "PHONECALL" then
 
 						--mobile side: expect OnHMIStatus notification
-						EXPECT_NOTIFICATION("OnHMIStatus",{hmiLevel = "BACKGROUND", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN"})
+						EXPECT_NOTIFICATION("OnHMIStatus",{hmiLevel = "LIMITED", audioStreamingState = "AUDIBLE", systemContext = "MAIN"})
 					else
 						--mobile side: expect OnHMIStatus notification
 						EXPECT_NOTIFICATION("OnHMIStatus",{hmiLevel = hmiLevelValue, audioStreamingState = audibleState, systemContext = "MAIN"})
@@ -508,8 +512,8 @@ Debug = {} -- empty {}: script will do not print request on console screen.
 		--Begin Test case SequenceCheck.3
 		--Description: Cover TC_OnAppDeactivated_03
 
-			--Requirement id in JAMA:
-					-- SDLAQ-TC-394
+			--Requirement id in JAMA and JIRA:
+					-- SDLAQ-TC-394; APPLINK-18881; APPLINK-18880
 
 			--Verification criteria:
 					-- Check changing HMI levels of apps from LIMITED and FULL to BACKGROUND if reason of
@@ -659,7 +663,7 @@ Debug = {} -- empty {}: script will do not print request on console screen.
 						end
 					end)
 
-				self.mobileSession3:ExpectNotification("OnHMIStatus", {hmiLevel = "FULL", audioStreamingState = "AUDIBLE", systemContext = "MAIN"})
+				self.mobileSession3:ExpectNotification("OnHMIStatus", {hmiLevel = "FULL", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN"})
 				:Timeout(12000)
 			end
 
@@ -770,7 +774,7 @@ Debug = {} -- empty {}: script will do not print request on console screen.
 		-----------------------------------------------------------------------------------------
 --TODO: Need to be update according to APPLINK-17253
 		--Begin Test case DifferentHMIlevelChecks.3
-		--Description: Check OnAppDeactivated notification when HMI level is BACKGOUND
+		--Description: Check OnAppDeactivated notification when HMI level is BACKGROUND
 			for i=1,#reasonValue do
 				Test["OnAppDeactivated_BACKGROUND_Reason_" .. reasonValue[i]] = function(self)
 					--hmi side: sending BasicCommunication.OnAppDeactivated request

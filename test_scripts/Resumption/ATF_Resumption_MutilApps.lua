@@ -111,16 +111,16 @@ local applicationData =
 					languageDesired = 'EN-US',
 					hmiDisplayLanguageDesired = 'EN-US',
 					appHMIType = { "DEFAULT" },
-		appID = "0000003",
-		deviceInfo =
-		{
-		  os = "Android",
-		  carrier = "Megafon",
-		  firmwareRev = "Name: Linux, Version: 3.4.0-perf",
-		  osVersion = "4.4.2",
-		  maxNumberRFCOMMPorts = 1
-		}
-	  },
+						appID = "0000003",
+						deviceInfo =
+						{
+					 	 os = "Android",
+					 	 carrier = "Megafon",
+						  firmwareRev = "Name: Linux, Version: 3.4.0-perf",
+							  osVersion = "4.4.2",
+						  maxNumberRFCOMMPorts = 1
+						}
+	  			},
 	  navigationApp = {
 		syncMsgVersion =
 		{
@@ -283,6 +283,7 @@ local function SUSPEND(self, targetLevel)
 			EXPECT_HMINOTIFICATION("BasicCommunication.OnSDLPersistenceComplete")
 		end
 end
+--(self, 2, self.mobileSession2)
 
 local function AddCommand(self, icmdID, session)
 	  --mobile side: sending AddCommand request
@@ -306,7 +307,8 @@ local function AddCommand(self, icmdID, session)
 			position = 0,
 			menuName ="Command" .. tostring(icmdID)
 		  }
-		})
+		}
+		)
 		:Do(function(_,data)
 		  --hmi side: sending UI.AddCommand response 
 		  self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
@@ -2579,6 +2581,7 @@ end
 
   end
 
+
   --======================================================================================--
   -- IGN_OFF with postpone because of BC.OnEmergencyEvent(true) after RAI requests, OnEmergencyEvent(false) after 30 seconda
   --======================================================================================--
@@ -4377,8 +4380,9 @@ end
 
   end
 
+
 --////////////////////////////////////////////////////////////////////////////////////////////--
--- Resumption of 2 apps (App1 =LIMITED (navi), app2 = FULL (media)) 3rd app in BACKGROUND.
+-- Resumption of 3 apps (App1 =LIMITED (navi), app2 = FULL (media)) 3rd app in BACKGROUND.
 --////////////////////////////////////////////////////////////////////////////////////////////--
   --======================================================================================--
   -- IGN_OFF without postpone
@@ -7883,7 +7887,7 @@ end
   function Test:ActivateNonMediaApp()
 	ActivationApp(self, HMIAppIDNonMediaApp)
 
-	self.mobileSession2:ExpectNotification("OnHMIStatus", {hmiLevel = "FULL", audioStreamingState = "AUDIBLE", systemContext = "MAIN"})
+	self.mobileSession2:ExpectNotification("OnHMIStatus", {hmiLevel = "FULL", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN"})
   end
 
   function Test:AddCommandNonMediaApp()
@@ -7991,7 +7995,7 @@ end
   function Test:ActivateNonMediaApp()
 	ActivationApp(self, HMIAppIDNonMediaApp)
 
-	self.mobileSession2:ExpectNotification("OnHMIStatus", {hmiLevel = "FULL", audioStreamingState = "AUDIBLE", systemContext = "MAIN"})
+	self.mobileSession2:ExpectNotification("OnHMIStatus", {hmiLevel = "FULL", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN"})
   end
 
   function Test:AddCommandNonMediaApp()
@@ -8099,7 +8103,7 @@ end
   function Test:ActivateNonMediaApp()
 	ActivationApp(self, HMIAppIDNonMediaApp)
 
-	self.mobileSession2:ExpectNotification("OnHMIStatus", {hmiLevel = "FULL", audioStreamingState = "AUDIBLE", systemContext = "MAIN"})
+	self.mobileSession2:ExpectNotification("OnHMIStatus", {hmiLevel = "FULL", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN"})
   end
 
   function Test:AddCommandNonMediaApp()
@@ -8208,7 +8212,7 @@ end
   function Test:ActivateNonMediaApp()
 	ActivationApp(self, HMIAppIDNonMediaApp)
 
-	self.mobileSession2:ExpectNotification("OnHMIStatus", {hmiLevel = "FULL", audioStreamingState = "AUDIBLE", systemContext = "MAIN"})
+	self.mobileSession2:ExpectNotification("OnHMIStatus", {hmiLevel = "FULL", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN"})
   end
 
   function Test:AddCommandNonMediaApp()
@@ -8316,7 +8320,7 @@ end
   function Test:ActivateNonMediaApp()
 	ActivationApp(self, HMIAppIDNonMediaApp)
 
-	self.mobileSession2:ExpectNotification("OnHMIStatus", {hmiLevel = "FULL", audioStreamingState = "AUDIBLE", systemContext = "MAIN"})
+	self.mobileSession2:ExpectNotification("OnHMIStatus", {hmiLevel = "FULL", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN"})
   end
 
   function Test:AddCommandNonMediaApp()
@@ -8424,7 +8428,7 @@ end
   function Test:ActivateNonMediaApp()
 	ActivationApp(self, HMIAppIDNonMediaApp)
 
-	self.mobileSession2:ExpectNotification("OnHMIStatus", {hmiLevel = "FULL", audioStreamingState = "AUDIBLE", systemContext = "MAIN"})
+	self.mobileSession2:ExpectNotification("OnHMIStatus", {hmiLevel = "FULL", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN"})
   end
 
   function Test:AddCommandNonMediaApp()
@@ -8532,7 +8536,7 @@ end
   function Test:ActivateNonMediaApp()
 	ActivationApp(self, HMIAppIDNonMediaApp)
 
-	self.mobileSession2:ExpectNotification("OnHMIStatus", {hmiLevel = "FULL", audioStreamingState = "AUDIBLE", systemContext = "MAIN"})
+	self.mobileSession2:ExpectNotification("OnHMIStatus", {hmiLevel = "FULL", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN"})
   end
 
   function Test:AddCommandNonMediaApp()
@@ -8617,7 +8621,7 @@ end
   function Test:ActivateNonMediaApp()
 	ActivationApp(self, HMIAppIDNonMediaApp)
 
-	self.mobileSession2:ExpectNotification("OnHMIStatus", {hmiLevel = "FULL", audioStreamingState = "AUDIBLE", systemContext = "MAIN"})
+	self.mobileSession2:ExpectNotification("OnHMIStatus", {hmiLevel = "FULL", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN"})
   end
 
   function Test:AddCommandNonMediaApp()
@@ -8705,7 +8709,7 @@ end
   function Test:ActivateNonMediaApp()
 	ActivationApp(self, HMIAppIDNonMediaApp)
 
-	self.mobileSession2:ExpectNotification("OnHMIStatus", {hmiLevel = "FULL", audioStreamingState = "AUDIBLE", systemContext = "MAIN"})
+	self.mobileSession2:ExpectNotification("OnHMIStatus", {hmiLevel = "FULL", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN"})
   end
 
   function Test:AddCommandNonMediaApp()
@@ -8793,7 +8797,7 @@ end
   function Test:ActivateNonMediaApp()
 	ActivationApp(self, HMIAppIDNonMediaApp)
 
-	self.mobileSession2:ExpectNotification("OnHMIStatus", {hmiLevel = "FULL", audioStreamingState = "AUDIBLE", systemContext = "MAIN"})
+	self.mobileSession2:ExpectNotification("OnHMIStatus", {hmiLevel = "FULL", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN"})
   end
 
   function Test:AddCommandNonMediaApp()
@@ -8882,7 +8886,7 @@ end
   function Test:ActivateNonMediaApp()
 	ActivationApp(self, HMIAppIDNonMediaApp)
 
-	self.mobileSession2:ExpectNotification("OnHMIStatus", {hmiLevel = "FULL", audioStreamingState = "AUDIBLE", systemContext = "MAIN"})
+	self.mobileSession2:ExpectNotification("OnHMIStatus", {hmiLevel = "FULL", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN"})
   end
 
   function Test:AddCommandNonMediaApp()
@@ -8970,7 +8974,7 @@ end
   function Test:ActivateNonMediaApp()
 	ActivationApp(self, HMIAppIDNonMediaApp)
 
-	self.mobileSession2:ExpectNotification("OnHMIStatus", {hmiLevel = "FULL", audioStreamingState = "AUDIBLE", systemContext = "MAIN"})
+	self.mobileSession2:ExpectNotification("OnHMIStatus", {hmiLevel = "FULL", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN"})
   end
 
   function Test:AddCommandNonMediaApp()
@@ -9058,7 +9062,7 @@ end
   function Test:ActivateNonMediaApp()
 	ActivationApp(self, HMIAppIDNonMediaApp)
 
-	self.mobileSession2:ExpectNotification("OnHMIStatus", {hmiLevel = "FULL", audioStreamingState = "AUDIBLE", systemContext = "MAIN"})
+	self.mobileSession2:ExpectNotification("OnHMIStatus", {hmiLevel = "FULL", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN"})
   end
 
   function Test:AddCommandNonMediaApp()
@@ -9146,7 +9150,7 @@ end
   function Test:ActivateNonMediaApp()
 	ActivationApp(self, HMIAppIDNonMediaApp)
 
-	self.mobileSession2:ExpectNotification("OnHMIStatus", {hmiLevel = "FULL", audioStreamingState = "AUDIBLE", systemContext = "MAIN"})
+	self.mobileSession2:ExpectNotification("OnHMIStatus", {hmiLevel = "FULL", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN"})
   end
 
   function Test:AddCommandNonMediaApp()

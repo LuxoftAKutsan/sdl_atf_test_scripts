@@ -183,8 +183,8 @@ function commonSteps:RegisterTheSecondMediaApp()
 													{
 														syncMsgVersion = 
 														{ 
-															majorVersion = 3,
-															minorVersion = 0,
+															majorVersion = 4,
+															minorVersion = 2,
 														}, 
 														appName ="SPT2",
 														isMediaApplication = true,
@@ -324,7 +324,7 @@ function commonSteps:RegisterAppInterface(TestCaseName)
 			syncMsgVersion = 
 			{
 				majorVersion = 4,
-				minorVersion = 0
+				minorVersion = 2
 			}
 		})
 		:Timeout(12000)
